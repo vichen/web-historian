@@ -16,7 +16,8 @@ exports.paths = {
   archivedSites: path.join(__dirname, '../archives/sites'),
   list: path.join(__dirname, '../archives/sites.txt'),
   index: path.join(__dirname, '../web/public/index.html'),
-  loading: path.join(__dirname, '../web/public/loading.html')
+  loading: path.join(__dirname, '../web/public/loading.html'),
+  archivedSitesTest: path.join('', '/Users/vivianchen/Documents/hack-reactor/2016-02-web-historian/test/testdata/sites')
 };
 
 // Used for stubbing paths for tests, do not modify
@@ -89,7 +90,8 @@ exports.downloadUrls = function(arrayOfUrls) {
     exports.download(url);
   }
 
-  var files = fs.readdirSync(exports.paths.archivedSites);
+  var files = fs.readdirSync(exports.paths.archivedSitesTest);
+  console.log(exports.paths.archivedSitesTest);
   console.log('heres the list of files ', files);
 };
 

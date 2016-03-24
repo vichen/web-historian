@@ -29,33 +29,40 @@ exports.initialize = function(pathsObj) {
 // The following function names are provided to you to suggest how you might
 // modularize your code. Keep it clean!
 
-exports.readListOfUrls = function() {
+// doesn't need callback
+exports.readListOfUrls = function(callback) {
+  fs.readFile(exports.paths.list, 'utf8', function(error, data) {
+    if (error) {
+      console.log('you got an error in read list of URLs', error);
+    } else {
+      var listOfUrls = data.split('\n');
+      console.log(listOfUrls);
+      callback(listOfUrls);
+    }
+  });
 };
 
-exports.isUrlInList = function(url) {
+exports.isUrlInList = function(url, callback) {
   fs.readFile(exports.paths.list, 'utf8', function(error, data) {
-    if (error) { throw error; }
+    if (error) { 
+      console.log('Error in isUrlInList, could not read file');
+      callback(error, null);
+    }
     if (data.indexOf(url) < 0) {
-      return false;
+      console.log('isUrlInList: false');
+      callback(null, false);
     } else {
-      return true;
+      console.log('isUrlInList: true');
+      callback(null, true);
     }
   });
 };
 
 exports.addUrlToList = function(url, callback) {
-  fs.writeFile(exports.paths.list, url, function(error) {
+  fs.appendFile(exports.paths.list, url + '\n', function(error) {
     if (!error) {
-      console.log('added to list');
-      fs.readFile(exports.paths.list, 'utf8', function(error, data) {
-        if (!error) {
-          console.log('Here is the data in the file', data);
-        } else {
-          console.log('there was an error reading txtFile');
-        }
-      });
+      callback(null, true);
     } else {
-      console.log(error);
       callback(error, null);
     }
   });
@@ -65,47 +72,47 @@ exports.isUrlArchived = function(url, callback) {
   console.log('we\'re checking if this url exists ', url);
   fs.stat(url, function(error, stats) {
     if (error) {
-      console.log('Oops, you got an error from stat in #isUrlArchived: ', error);
+      console.log('Oops, you got an error from stat in #isUrlArchived: ');
       callback(error, null);
     } else {
-      callback(null, stats.isFile());
       console.log('this is stats.isFile ', stats.isFile());
+      callback(null, stats.isFile());
     } 
   });
 };
 
-exports.downloadUrls = function() {
+// should take in an array
+exports.downloadUrls = function(arrayOfUrls) {
+  // for each element in the array
+    // call download on it
+  for (var url of arrayOfUrls) {
+    exports.download(url);
+  }
 
+  var files = fs.readdirSync(exports.paths.archivedSites);
+  console.log('heres the list of files ', files);
 };
+
 
 exports.download = function(url) {
+  var destination = exports.paths.archivedSites + '/' + url;
+  url = 'http://' + url;
+  console.log(url);
   request(url, function(error, response, body) {
-    console.log(body);
+    if (error) {
+      console.log('download error ', error);
+    }
+
+    fs.writeFile(destination, body, function(error) {
+      if (!error) {
+        console.log('success creating file');
+      } else {
+        console.log('error ', error);
+      }
+    });
   });
-
-
-  // var destination = exports.paths.archivedSites + '/' + url;
-  // var pageContent = http.get(url, function(response) {
-  //   var data = '';
-  //   response.setEncoding('utf8');
-  //   response.on('data', function(chunk) {
-  //     data += chunk;
-  //   });
-  //   response.on('end', function() {
-  //     return data;
-  //   });
-  // }).on('error', function(error) {
-  //   console.log(error);
-  // });
-
-  // console.log(pageContent);
-
-  // fs.writeFile(destination, pageContent, function(error) {
-  //   if (!error) {
-  //     console.log('success creating file');
-  //   } else {
-  //     console.log('error ', error);
-  //   }
-  // });
-
 };
+
+
+
+

@@ -1,6 +1,8 @@
 var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
+var http = require('http');
+var request = require('request');
 
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
@@ -13,7 +15,8 @@ exports.paths = {
   siteAssets: path.join(__dirname, '../web/public'),
   archivedSites: path.join(__dirname, '../archives/sites'),
   list: path.join(__dirname, '../archives/sites.txt'),
-  index: path.join(__dirname, '../web/public/index.html')
+  index: path.join(__dirname, '../web/public/index.html'),
+  loading: path.join(__dirname, '../web/public/loading.html')
 };
 
 // Used for stubbing paths for tests, do not modify
@@ -30,7 +33,7 @@ exports.readListOfUrls = function() {
 };
 
 exports.isUrlInList = function(url) {
-  fs.readFile(paths.list, function(error, data) {
+  fs.readFile(exports.paths.list, function(error, data) {
     if (error) { throw error; }
 
     if (data.indexOf(url) < 0) {
@@ -42,9 +45,16 @@ exports.isUrlInList = function(url) {
 };
 
 exports.addUrlToList = function(url) {
-  fs.writeFile(paths.list, url, function(error) {
+  fs.writeFile(exports.paths.list, url, function(error) {
     if (!error) {
       console.log('added to list');
+      fs.readFile(exports.paths.list, 'utf8', function(error, data) {
+        if (!error) {
+          console.log('Here is the data in the file', data);
+        } else {
+          console.log('there was an error reading txtFile');
+        }
+      });
     } else {
       console.log(error);
     }
@@ -62,4 +72,37 @@ exports.isUrlArchived = function(url) {
 };
 
 exports.downloadUrls = function() {
+
+};
+
+exports.download = function(url) {
+  request(url, function(error, response, body) {
+    console.log(body);
+  });
+
+
+  // var destination = exports.paths.archivedSites + '/' + url;
+  // var pageContent = http.get(url, function(response) {
+  //   var data = '';
+  //   response.setEncoding('utf8');
+  //   response.on('data', function(chunk) {
+  //     data += chunk;
+  //   });
+  //   response.on('end', function() {
+  //     return data;
+  //   });
+  // }).on('error', function(error) {
+  //   console.log(error);
+  // });
+
+  // console.log(pageContent);
+
+  // fs.writeFile(destination, pageContent, function(error) {
+  //   if (!error) {
+  //     console.log('success creating file');
+  //   } else {
+  //     console.log('error ', error);
+  //   }
+  // });
+
 };

@@ -11,20 +11,36 @@ var headers = httpHelpers.headers;
 
 exports.handleRequest = function (request, response) {
   // if GET request for index.
-  console.log(request.url);
-  if (request.method === 'GET') {
 
-    httpHelpers.serveAssets(response, archive.paths.index);
+  if (request.method === 'GET') {
+    console.log('GET REQUEST for ', request.url);
     //checks if root
+    if (request.url === '/') {
       // serves index.html
-    //checks if has been archived
-      // if archived send to serveAssets
-      // else 
+      console.log('youre getting the index');
+      httpHelpers.serveAssets(response, archive.paths.index);
+    } else {
+      var requestUrl = request.url.slice(1);
+      //checks if has been archived
+      var testPath = archive.paths.archivedSites.concat(request.url);
+      if (archive.isUrlArchived(testPath)) {
+        // if archived send to serveAssets
+        console.log('This file is archived!');
+        httpHelpers.serveAssets(response, archive.paths);
         // check if on sites.txt list
-          // if not on list
-            // add to list
-          // if on list
-            // serve user the 'fetching archive' html
+      } else if (archive.isUrlInList(requestUrl)) {
+        console.log('This file is on the list and (hopefully) loading');
+        httpHelpers.serveAssets(response, archive.paths.loading);
+        // if not on list
+      } else {
+        console.log('This file was not on the list and we are adding to the list');
+        // add to list
+        archive.addUrlToList(requestUrl);
+        archive.download(requestUrl);
+        httpHelpers.serveAssets(response, archive.paths.loading);
+      }
+      
+    }
   }
 };
     // write content of index.html to response

@@ -10,7 +10,6 @@ var statusCodeIn = 200;
 var headers = httpHelpers.headers;
 
 exports.handleRequest = function (request, response) {
-  // if GET request for index.
 
   if (request.method === 'GET') {
     console.log('GET REQUEST for ', request.url);
@@ -27,23 +26,29 @@ exports.handleRequest = function (request, response) {
         // if archived send to serveAssets
         console.log('This file is archived!');
         httpHelpers.serveAssets(response, archive.paths);
-        // check if on sites.txt list
       } else if (archive.isUrlInList(requestUrl)) {
+        // check if on sites.txt list
         console.log('This file is on the list and (hopefully) loading');
         httpHelpers.serveAssets(response, archive.paths.loading);
-        // if not on list
       } else {
-        console.log('This file was not on the list and we are adding to the list');
-        // add to list
-        archive.addUrlToList(requestUrl);
-        archive.download(requestUrl);
-        httpHelpers.serveAssets(response, archive.paths.loading);
+        // TODO: try to serve file from /public folder
+        // Ex.  request => GET http://127.0.0.1/style.css
+        //      respond => serve file public/style.css
+        // If file does not exist => send back 404
       }
-      
     }
   }
+
+  if (request.method === 'POST') {
+    //TODO:
+    // 1) Get target URL from request body
+    // 2) Add url to list
+    // 3) Do a GET request to get content at target url and save it in /archive folder
+
+    // console.log('This file was not on the list and we are adding to the list');
+    // // add to list
+    // archive.addUrlToList(requestUrl);
+    // archive.download(requestUrl);
+    // httpHelpers.serveAssets(response, archive.paths.loading);
+  }
 };
-    // write content of index.html to response
-
-  // res.end(archive.paths.list);
-

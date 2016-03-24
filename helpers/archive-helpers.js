@@ -45,6 +45,7 @@ exports.isUrlInList = function(url) {
 };
 
 exports.addUrlToList = function(url) {
+  //TODO: append file instead, otherwise writeFile will overwrite the whole file
   fs.writeFile(exports.paths.list, url, function(error) {
     if (!error) {
       console.log('added to list');

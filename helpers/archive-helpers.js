@@ -2,7 +2,7 @@ var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
 var http = require('http');
-var request = require('request');
+var request = require('request'); // don't actually need request
 
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
@@ -33,9 +33,8 @@ exports.readListOfUrls = function() {
 };
 
 exports.isUrlInList = function(url) {
-  fs.readFile(exports.paths.list, function(error, data) {
+  fs.readFile(exports.paths.list, 'utf8', function(error, data) {
     if (error) { throw error; }
-
     if (data.indexOf(url) < 0) {
       return false;
     } else {
@@ -44,8 +43,7 @@ exports.isUrlInList = function(url) {
   });
 };
 
-exports.addUrlToList = function(url) {
-  //TODO: append file instead, otherwise writeFile will overwrite the whole file
+exports.addUrlToList = function(url, callback) {
   fs.writeFile(exports.paths.list, url, function(error) {
     if (!error) {
       console.log('added to list');
@@ -58,17 +56,21 @@ exports.addUrlToList = function(url) {
       });
     } else {
       console.log(error);
+      callback(error, null);
     }
   });
 };
 
-exports.isUrlArchived = function(url) {
-  fs.stat(url, function(error, stat) {
-    if (!error) {
-      return true;
+exports.isUrlArchived = function(url, callback) {
+  console.log('we\'re checking if this url exists ', url);
+  fs.stat(url, function(error, stats) {
+    if (error) {
+      console.log('Oops, you got an error from stat in #isUrlArchived: ', error);
+      callback(error, null);
     } else {
-      return false;
-    }
+      callback(null, stats.isFile());
+      console.log('this is stats.isFile ', stats.isFile());
+    } 
   });
 };
 

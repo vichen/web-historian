@@ -16,26 +16,32 @@ exports.handleRequest = function (request, response) {
     //checks if root
     if (request.url === '/') {
       // serves index.html
-      console.log('youre getting the index');
       httpHelpers.serveAssets(response, archive.paths.index);
     } else {
       var requestUrl = request.url.slice(1);
       //checks if has been archived
       var testPath = archive.paths.archivedSites.concat(request.url);
-      if (archive.isUrlArchived(testPath)) {
+      // console.log('the check for isUrlArchived returns ', archive.isUrlArchived(testPath));
+      archive.isUrlArchived(testPath, function(error, result) {
+        if (error) {
+          console.log('Sorry, you got an error on isUrlArchived', error);
+          httpHelpers.serveAssets(404, null);
+        } else if (result) {
+          console.log('Good news! That URL is archived');
+          httpHelpers.serveAssets(response, testPath);
+        } else {
+        }
+      }); 
         // if archived send to serveAssets
-        console.log('This file is archived!');
-        httpHelpers.serveAssets(response, archive.paths);
-      } else if (archive.isUrlInList(requestUrl)) {
-        // check if on sites.txt list
-        console.log('This file is on the list and (hopefully) loading');
-        httpHelpers.serveAssets(response, archive.paths.loading);
-      } else {
-        // TODO: try to serve file from /public folder
-        // Ex.  request => GET http://127.0.0.1/style.css
-        //      respond => serve file public/style.css
-        // If file does not exist => send back 404
-      }
+      //  else if (archive.isUrlInList(requestUrl)) {
+      //   // check if on sites.txt list
+      //   httpHelpers.serveAssets(response, archive.paths.loading);
+      // } else {
+      //   // TODO: try to serve file from /public folder
+      //   // Ex.  request => GET http://127.0.0.1/style.css
+      //   //      respond => serve file public/style.css
+      //   // If file does not exist => send back 404
+      // }
     }
   }
 

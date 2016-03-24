@@ -20,6 +20,7 @@ exports.serveAssets = function(response, asset, callback) {
       response.writeHeader(404, headers);
       response.end('error: ' + error);
     } else {
+      console.log('serving content for ', asset);
       response.writeHeader(200, headers);
       response.end(data);
     }
